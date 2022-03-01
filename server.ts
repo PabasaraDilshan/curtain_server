@@ -1,6 +1,7 @@
 import * as http from "http";
 import * as WebSocket from "ws";
 import * as fs from "fs";
+import { WebSocketInterface } from "./types";
 const PORT = process.env.PORT||5000;
 
 const server = http.createServer(async (req,res)=>{
@@ -43,8 +44,42 @@ wss.on('connection',function connection(ws){
     })
 })
 
-function handleMessage(wss:WebSocket.Server,ws:WebSocket.WebSocket,data:WebSocket.RawData){
-    console.log(data);
+function handleMessage(wss:WebSocket.Server,ws:WebSocketInterface,dataBuff:WebSocket.RawData){
+    try{
+    
+        const data = JSON.parse(dataBuff.toString());
+        switch (data.type) {
+            case "connect":
+                ws.id = data.message.username;
+                console.log(`${data.message.username} Connected`)
+                 
+                ws.send(`{
+                    "type":"connect", 
+                    "message":{"username":"${data.message.username}"   },
+                    "success":true
+                    }`);
+                    break;
+            case "add-curtain":
+                const res = {
+                    type:data.type,
+                    message:data.message,
+                    success:true
+                }
+                ws.send(JSON.stringify(res));
+
+
+                console.log(`${data.message.username}, Curtain Created`)
+                break;
+            default:
+                break;
+        }
+    
+
+
+    }catch{
+        console.log("Error");
+    }
+    
 }
 
 server.listen(PORT,()=>{
