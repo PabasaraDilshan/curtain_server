@@ -1,4 +1,5 @@
 # New Connection
+```
 {
 "type":"connect", 
 "message":"{"username":"pabasara"   }"
@@ -9,9 +10,10 @@
 "message":"Successfully Connected",
 "success":"true"
 }
+```
 
-
-Create New Curtain
+# Create New Curtain
+```
 Request
 "{
 "type":"add-curtain", 
@@ -36,7 +38,7 @@ Response
    }",
 "success":"true"
 }"
-
+```
 
 
 
@@ -45,6 +47,7 @@ Response
 
 # Get Curtains
 
+```
 Request 
 "{
 "type":"get-curtains", 
@@ -66,9 +69,10 @@ Response
  }]
 "success":"true"
 }"
-
+```
 
 # Control Curtains
+```
 Request 
 "{
 "type":"control-curtain", 
@@ -80,15 +84,10 @@ Request
  }"
 }"
 
-
-
-
-
-
-
 Response
 "{
 "type":"control-curtain", 
 "message": "Curtain Opened Successfully"
 "success":"true"
 }"
+```
