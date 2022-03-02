@@ -2,8 +2,11 @@ import * as http from "http";
 import * as WebSocket from "ws";
 import * as fs from "fs";
 import { WebSocketInterface } from "./types";
+import dbConnection from "./config/dbConfig";
+import { Login } from "./services/UserService";
+import { addCurtain, controlCurtain, getCurtains } from "./services/CurtainService";
 const PORT = process.env.PORT||5000;
-
+dbConnection();
 const server = http.createServer(async (req,res)=>{
     if(req.url==="/" && req.method === "GET"){
         fs.readFile('index.html',(error,pgResp)=>{
@@ -44,7 +47,7 @@ wss.on('connection',function connection(ws){
     })
 })
 
-function handleMessage(wss:WebSocket.Server,ws:WebSocketInterface,dataBuff:WebSocket.RawData){
+async function handleMessage(wss:WebSocket.Server,ws:WebSocketInterface,dataBuff:WebSocket.RawData){
     var res;
     try{
     
@@ -52,45 +55,46 @@ function handleMessage(wss:WebSocket.Server,ws:WebSocketInterface,dataBuff:WebSo
         switch (data.type) {
             case "connect":
                 ws.id = data.message.username;
-                console.log(`${data.message.username} Connected`)
-                 
-                ws.send(`{
-                    "type":"connect", 
-                    "message":{"username":"${data.message.username}"   },
-                    "success":true
-                    }`);
-                    break;
-            case "add-curtain":
+               
+                const user = await Login(data.message.username); 
                 res = {
-                    type:data.type,
-                    message:data.message,
-                    success:true
+                    type :"connect",
+                    success:true,
+                    message: user
                 }
                 ws.send(JSON.stringify(res));
-
-
-                console.log(`${data.message.username}, Curtain Created`)
+                console.log(`${data.message.username} Connected!`)
+                break;
+            case "add-curtain":
+                res = await addCurtain(data);
+                ws.send(JSON.stringify(res));
+            
+               
                 break;
             case "get-curtains":
-                    const curtains:any = []
-                    res = {
-                        type:data.type,
-                        message:curtains,
-                        success:true
-                    }
+
+                    res = await getCurtains(data);
                     ws.send(JSON.stringify(res));
     
     
-                    console.log(`${data.message.username}, Curtain Created`)
+                    console.log(`${data.message.username}, Getting Curtain`)
                     break;
+             case "control-curtain":
+                        res = controlCurtain(data,wss,ws)
+                       
+                        ws.send(JSON.stringify(res));
+        
+        
+                        console.log(`${data.message.username}, Curtain Created`)
+                        break;
             default:
                 break;
         }
     
 
 
-    }catch{
-        console.log("Error");
+    }catch(e){
+        console.log("Error",e);
     }
     
 }
