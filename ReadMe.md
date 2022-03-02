@@ -2,7 +2,9 @@
 ```
 {
 "type":"connect", 
-"message":"{"username":"pabasara"   }"
+"message":{
+    "username":"pabasara"   
+    }
 }
 
 {
@@ -15,29 +17,29 @@
 # Create New Curtain
 ```
 Request
-"{
+{
 "type":"add-curtain", 
-"message":"{
+"message":{
 "username":"pabasara",
 "location" : "living room",
 "curtainId" : "12345",
 "openTime":"",
 "closeTime" : ""
-   }"
-}"
+   }
+}
 
 Response
-"{
+{
 "type":"add-curtain", 
-"message": "{
+"message": {
 "username":"pabasara",
 "location" : "living room",
 "curtainId" : "12345",
 "openTime":"",
 "closeTime" : ""
-   }",
+   },
 "success":"true"
-}"
+}
 ```
 
 
@@ -49,16 +51,16 @@ Response
 
 ```
 Request 
-"{
+{
 "type":"get-curtains", 
-"message":"{
+"message":{
 "username":"pabasara"  
 
- }"
-}"
+ }
+}
 
 Response
-"{
+{
 "type":"get-curtains", 
 "message":[{
 "username":"pabasara",
@@ -68,26 +70,26 @@ Response
 "closeTime" : "" 
  }]
 "success":"true"
-}"
+}
 ```
 
 # Control Curtains
 ```
 Request 
-"{
+{
 "type":"control-curtain", 
-"message":"{
+"message":{
 "username":"pabasara",
 "curtainId":"12345",
 "command":"open"  
 
- }"
-}"
+ }
+}
 
 Response
-"{
+{
 "type":"control-curtain", 
 "message": "Curtain Opened Successfully"
 "success":"true"
-}"
+}
 ```
