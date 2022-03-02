@@ -45,6 +45,7 @@ wss.on('connection',function connection(ws){
 })
 
 function handleMessage(wss:WebSocket.Server,ws:WebSocketInterface,dataBuff:WebSocket.RawData){
+    var res;
     try{
     
         const data = JSON.parse(dataBuff.toString());
@@ -60,7 +61,7 @@ function handleMessage(wss:WebSocket.Server,ws:WebSocketInterface,dataBuff:WebSo
                     }`);
                     break;
             case "add-curtain":
-                const res = {
+                res = {
                     type:data.type,
                     message:data.message,
                     success:true
@@ -70,6 +71,18 @@ function handleMessage(wss:WebSocket.Server,ws:WebSocketInterface,dataBuff:WebSo
 
                 console.log(`${data.message.username}, Curtain Created`)
                 break;
+            case "get-curtains":
+                    const curtains:any = []
+                    res = {
+                        type:data.type,
+                        message:curtains,
+                        success:true
+                    }
+                    ws.send(JSON.stringify(res));
+    
+    
+                    console.log(`${data.message.username}, Curtain Created`)
+                    break;
             default:
                 break;
         }
