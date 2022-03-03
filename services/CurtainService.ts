@@ -4,11 +4,26 @@ import {Server} from "ws";
 import { WebSocketInterface } from "../types";
 
 export async function controlCurtain(req:any,wss:Server,ws:WebSocketInterface){
+   var res;
     if(req.message.command=="open"){
         Curtain.updateOne({curtainId:req.message.curtainId},{isOpen:true});
+         res = {
+            type:'control-curtain',
+            message:"Curtain Opened Successfully",
+            success:true
+    
+        }
     }else{
         Curtain.updateOne({curtainId:req.message.curtainId},{isOpen:false});
+         res = {
+            type:'control-curtain',
+            message:"Curtain Closed Successfully",
+            success:true
+    
+        }
     }
+    
+    return res
 }
 export async function getCurtains(req:any){
     var res;
@@ -51,7 +66,8 @@ export async function addCurtain(req:any){
                 userId:user._id.toString(),
                 openTime:req.message.openTime,
                 closeTime:req.message.closeTime,
-                location:req.message.location
+                location:req.message.location,
+                username:req.message.username
             })
             curtain.save()
             res = {

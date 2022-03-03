@@ -5,7 +5,7 @@ import { WebSocketInterface } from "./types";
 import dbConnection from "./config/dbConfig";
 import { Login } from "./services/UserService";
 import { addCurtain, controlCurtain, getCurtains } from "./services/CurtainService";
-const PORT = process.env.PORT||5000;
+const PORT = process.env.PORT||80;
 dbConnection();
 const server = http.createServer(async (req,res)=>{
     if(req.url==="/" && req.method === "GET"){
@@ -88,6 +88,7 @@ async function handleMessage(wss:WebSocket.Server,ws:WebSocketInterface,dataBuff
                         console.log(`${data.message.username}, Curtain Created`)
                         break;
             default:
+                console.log(data);
                 break;
         }
     

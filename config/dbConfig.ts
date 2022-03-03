@@ -21,7 +21,8 @@ export default function dbConnection(): void{
     //         break;
     // }
     // concat uri
-    const uri: string = `mongodb://${dbConfig.dbHost}:${dbConfig.dbPort}`; /* /${dbConfig.dbName}`; */
+    const uri = 'mongodb+srv://admin:pabasara12345@cluster0.wtkcb.mongodb.net/Curtains?retryWrites=true&w=majority'
+    //const uri: string = `mongodb://${dbConfig.dbHost}:${dbConfig.dbPort}`; /* /${dbConfig.dbName}`; */
     console.log(uri)
     const options: mongoose.ConnectOptions = {
         user: dbConfig.dbUsername,
@@ -29,9 +30,21 @@ export default function dbConnection(): void{
         dbName: dbConfig.dbName,
     }
 
+    // mongoose.connect(
+    //     uri,
+    //     options,
+    //     (err:any) => {
+    //         if(err){
+    //             console.error(err);
+    //             console.error('Db connection failure');
+    //         } else {
+    //             console.log('Db connected successfully');
+    //         }
+    //     }
+    // )
     mongoose.connect(
         uri,
-        options,
+   
         (err:any) => {
             if(err){
                 console.error(err);

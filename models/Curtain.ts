@@ -7,6 +7,7 @@ const CurtainSchema = new Schema({
     openTime: String,
     closeTime:String,
     isOpened:{type:Boolean,default:false},
+    username:String
 });
 
 const Curtain = model('Curtain', CurtainSchema);
