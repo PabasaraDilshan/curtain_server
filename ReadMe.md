@@ -92,4 +92,5 @@ Response
 "message": "Curtain Opened Successfully"
 "success":"true"
 }
+
 ```
