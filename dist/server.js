@@ -31,11 +31,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const http = __importStar(require("http"));
 const WebSocket = __importStar(require("ws"));
 const fs = __importStar(require("fs"));
-const PORT = process.env.PORT || 5000;
+const dbConfig_1 = __importDefault(require("./config/dbConfig"));
+const UserService_1 = require("./services/UserService");
+const CurtainService_1 = require("./services/CurtainService");
+const PORT = process.env.PORT || 80;
+(0, dbConfig_1.default)();
 const server = http.createServer((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.url === "/" && req.method === "GET") {
         fs.readFile('index.html', (error, pgResp) => {
@@ -73,8 +80,46 @@ wss.on('connection', function connection(ws) {
         handleMessage(wss, ws, data);
     });
 });
-function handleMessage(wss, ws, data) {
-    console.log(data);
+function handleMessage(wss, ws, dataBuff) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var res;
+        try {
+            const data = JSON.parse(dataBuff.toString());
+            switch (data.type) {
+                case "connect":
+                    ws.id = data.message.username;
+                    const user = yield (0, UserService_1.Login)(data.message.username);
+                    res = {
+                        type: "connect",
+                        success: true,
+                        message: user
+                    };
+                    ws.send(JSON.stringify(res));
+                    console.log(`${data.message.username} Connected!`);
+                    break;
+                case "add-curtain":
+                    res = yield (0, CurtainService_1.addCurtain)(data);
+                    ws.send(JSON.stringify(res));
+                    break;
+                case "get-curtains":
+                    res = yield (0, CurtainService_1.getCurtains)(data);
+                    ws.send(JSON.stringify(res));
+                    console.log(`${data.message.username}, Getting Curtain`);
+                    break;
+                case "control-curtain":
+                    res = (0, CurtainService_1.controlCurtain)(data, wss, ws);
+                    ws.send(JSON.stringify(res));
+                    console.log(`${data.message.username}, Curtain Created`);
+                    break;
+                default:
+                    console.log(data);
+                    break;
+            }
+        }
+        catch (e) {
+            console.log("Error", e);
+        }
+    });
 }
 server.listen(PORT, () => {
     console.log(`server started at ${PORT}`);
