@@ -4,7 +4,7 @@ import * as fs from "fs";
 import { WebSocketInterface } from "./types";
 import dbConnection from "./config/dbConfig";
 import { Login } from "./services/UserService";
-import { addCurtain, controlCurtain, getCurtains } from "./services/CurtainService";
+import { addCurtain, controlCurtain, getCurtains, handleCurtainMsg } from "./services/CurtainService";
 const PORT = process.env.PORT||80;
 dbConnection();
 const server = http.createServer(async (req,res)=>{
@@ -54,16 +54,28 @@ async function handleMessage(wss:WebSocket.Server,ws:WebSocketInterface,dataBuff
         const data = JSON.parse(dataBuff.toString());
         switch (data.type) {
             case "connect":
-                ws.id = data.message.username;
+                if(data.isCurtain){
+                    ws.id = data.curtainId;
+                    console.log("Curtain Connected:",data.curtainId)
+                    // res = {
+                    //     type :"connect",
+                    //     success:true,
+                    //     message: ws.id
+                    // }
+                    // ws.send(JSON.stringify(res));
+                }else{
+                    ws.id = data.message.username;
                
-                const user = await Login(data.message.username); 
-                res = {
-                    type :"connect",
-                    success:true,
-                    message: user
+                    const user = await Login(data.message.username); 
+                    res = {
+                        type :"connect",
+                        success:true,
+                        message: user,appVersion:'0.03'
+                    }
+                    ws.send(JSON.stringify(res));
+                    console.log(`${data.message.username} Connected!`)
                 }
-                ws.send(JSON.stringify(res));
-                console.log(`${data.message.username} Connected!`)
+                
                 break;
             case "add-curtain":
                 res = await addCurtain(data);
@@ -81,12 +93,17 @@ async function handleMessage(wss:WebSocket.Server,ws:WebSocketInterface,dataBuff
                     break;
              case "control-curtain":
                         res = controlCurtain(data,wss,ws)
-                       
+                       if(res){
+                        console.log("Sent",res)
                         ws.send(JSON.stringify(res));
-        
-        
-                        console.log(`${data.message.username}, Curtain Created`)
+                       }
+                        
+    
                         break;
+            case "from-curtain":
+                       handleCurtainMsg(data,wss,ws);
+                
+
             default:
                 console.log(data);
                 break;

@@ -87,15 +87,27 @@ function handleMessage(wss, ws, dataBuff) {
             const data = JSON.parse(dataBuff.toString());
             switch (data.type) {
                 case "connect":
-                    ws.id = data.message.username;
-                    const user = yield (0, UserService_1.Login)(data.message.username);
-                    res = {
-                        type: "connect",
-                        success: true,
-                        message: user
-                    };
-                    ws.send(JSON.stringify(res));
-                    console.log(`${data.message.username} Connected!`);
+                    if (data.isCurtain) {
+                        ws.id = data.curtainId;
+                        console.log("Curtain Connected:", data.curtainId);
+                        // res = {
+                        //     type :"connect",
+                        //     success:true,
+                        //     message: ws.id
+                        // }
+                        // ws.send(JSON.stringify(res));
+                    }
+                    else {
+                        ws.id = data.message.username;
+                        const user = yield (0, UserService_1.Login)(data.message.username);
+                        res = {
+                            type: "connect",
+                            success: true,
+                            message: user, appVersion: '0.03'
+                        };
+                        ws.send(JSON.stringify(res));
+                        console.log(`${data.message.username} Connected!`);
+                    }
                     break;
                 case "add-curtain":
                     res = yield (0, CurtainService_1.addCurtain)(data);
@@ -108,9 +120,13 @@ function handleMessage(wss, ws, dataBuff) {
                     break;
                 case "control-curtain":
                     res = (0, CurtainService_1.controlCurtain)(data, wss, ws);
-                    ws.send(JSON.stringify(res));
-                    console.log(`${data.message.username}, Curtain Created`);
+                    if (res) {
+                        console.log("Sent", res);
+                        ws.send(JSON.stringify(res));
+                    }
                     break;
+                case "from-curtain":
+                    (0, CurtainService_1.handleCurtainMsg)(data, wss, ws);
                 default:
                     console.log(data);
                     break;

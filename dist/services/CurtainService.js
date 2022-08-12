@@ -12,32 +12,96 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addCurtain = exports.getCurtains = exports.controlCurtain = void 0;
+exports.addCurtain = exports.getCurtains = exports.handleCurtainMsg = exports.controlCurtain = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const Curtain_1 = __importDefault(require("../models/Curtain"));
+const helpers_1 = require("./helpers");
 function controlCurtain(req, wss, ws) {
+    var res;
+    console.log(req);
+    switch (req.message.command) {
+        case "open":
+            // Curtain.updateOne({curtainId:req.message.curtainId},{isOpen:true});
+            console.log(req);
+            var curtainWs = (0, helpers_1.getWsbyId)(req.message.curtainId, wss);
+            if (curtainWs) {
+                curtainWs.send(JSON.stringify({
+                    type: 1,
+                    username: req.message.username,
+                    curtainId: req.message.curtainId,
+                    speed: req.message.speed ? req.message.speed : 30
+                }));
+            }
+            else {
+                res = {
+                    type: 'control-curtain',
+                    message: "Curtain Not online",
+                    success: false
+                };
+            }
+            break;
+        case "close":
+            // Curtain.updateOne({curtainId:req.message.curtainId},{isOpen:false});
+            var curtainWs = (0, helpers_1.getWsbyId)(req.message.curtainId, wss);
+            if (curtainWs) {
+                curtainWs.send(JSON.stringify({
+                    type: 0,
+                    username: req.message.username,
+                    curtainId: req.message.curtainId,
+                    speed: req.message.speed ? req.message.speed : 30
+                }));
+            }
+            else {
+                res = {
+                    type: 'control-curtain',
+                    message: "Curtain Not online",
+                    success: false
+                };
+            }
+            break;
+        case "test":
+            var curtainWs = (0, helpers_1.getWsbyId)(req.message.curtainId, wss);
+            curtainWs === null || curtainWs === void 0 ? void 0 : curtainWs.send(JSON.stringify({
+                type: 7,
+                username: req.message.username,
+                curtainId: req.message.curtainId
+            }));
+            break;
+        default:
+            break;
+    }
+    return res;
+}
+exports.controlCurtain = controlCurtain;
+function handleCurtainMsg(req, wss, ws) {
     return __awaiter(this, void 0, void 0, function* () {
         var res;
-        if (req.message.command == "open") {
-            Curtain_1.default.updateOne({ curtainId: req.message.curtainId }, { isOpen: true });
-            res = {
-                type: 'control-curtain',
-                message: "Curtain Opened Successfully",
-                success: true
-            };
-        }
-        else {
-            Curtain_1.default.updateOne({ curtainId: req.message.curtainId }, { isOpen: false });
-            res = {
-                type: 'control-curtain',
-                message: "Curtain Closed Successfully",
-                success: true
-            };
+        switch (req.case) {
+            case 0:
+                // Curtain.updateOne({curtainId:req.message.curtainId},{isOpen:true});
+                console.log("User", req.username);
+                var userWs = (0, helpers_1.getWsbyId)(req.username, wss);
+                if (userWs) {
+                    console.log("Sent", JSON.stringify(req));
+                    userWs.send(JSON.stringify(req));
+                }
+                break;
+            case 1:
+                // Curtain.updateOne({curtainId:req.message.curtainId},{isOpen:true});
+                console.log("User", req.username);
+                var userWs = (0, helpers_1.getWsbyId)(req.username, wss);
+                if (userWs) {
+                    console.log("Sent", JSON.stringify(req));
+                    userWs.send(JSON.stringify(req));
+                }
+                break;
+            default:
+                break;
         }
         return res;
     });
 }
-exports.controlCurtain = controlCurtain;
+exports.handleCurtainMsg = handleCurtainMsg;
 function getCurtains(req) {
     return __awaiter(this, void 0, void 0, function* () {
         var res;
